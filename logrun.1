@@ -130,6 +130,19 @@ output files, enter:
 .Pp
 .Dl mkdir ~/logs
 .Pp
+.Sh HINTS
+When using 
+.Nm
+with
+.Xr sudo 8 ,
+the following way is recommended:
+.Pp
+.Dl logrun sudo command...
+.Pp
+When you use logrun, your output directory gets a lot of output files in it.
+It is suggested that you delete the old files or archive them with
+something like
+.Xr tar 1 .
 .Sh ENVIRONMENT
 .Bl -tag -width LOGRUN_DIRX
 .It Ev LOGRUN_DIR
