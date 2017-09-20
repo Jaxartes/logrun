@@ -1,0 +1,33 @@
+Installation instructions for "logrun".
+
+1. You need to have "cmake" installed.  See https://cmake.org/.
+
+2. You need the "logrun" source code.
+
+3. "cd" to the source code directory.
+
+4. Do the following commands:
+    cd Build
+    cmake ..
+    make
+    make test
+    make install
+
+You can optionally do 'make test' to perform some simple automated tests.
+
+If you want to install to a different directory than the default,
+replace "cmake .." with the following:
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/the/path/where/stuff/goes ..
+files will be placed in 'bin' and 'man' subdirectories under the given
+path.
+
+If you don't have "cmake" available on your machine, you can do the
+following:
+    copy Makefile.canned -> Makefile
+    copy logrun_config.h.canned -> logrun_config.h
+    edit Makefile as appropriate for your system
+    edit logrun_config.h as appropriate for your system
+    run "make"
+    run "make install"
+    run "make install_man"
+But "cmake" is preferred.

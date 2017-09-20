@@ -1,0 +1,154 @@
+.\"	$Id: logrun.1 91 2016-07-10 01:26:19Z dilatush $
+.\"
+.\" Copyright (c) 2016 Jeremy Dilatush.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of Jeremy Dilatush nor the names of other contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY JEREMY DILATUSH AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL JEREMY DILATUSH OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.Dd July 9, 2016
+.Dt LOGRUN 1
+.Os
+.Sh NAME
+.Nm logrun
+.Nd run a command while recording output
+.Sh SYNOPSIS
+.Nm
+.Oo Fl gx Oc
+.Oo Fl d Ar directory Oc
+.Ar command Ar ...
+.Sh DESCRIPTION
+The
+.Nm
+utility lets you run a command while recording the output of that command.
+It is most useful when running non-interactive commands which generate a
+lot of output.
+.Pp
+Its options are as follows:
+.Bl -tag -width indent
+.It Fl d
+Store the output file in the given
+.Ar directory .
+.It Fl g
+Displays (and records) a message every five minutes (300 seconds)
+of program execution.  Use it if your program might spend a lot of time
+silent.
+.It Fl gg
+Like
+.Ql Fl g
+but more often: every one minute (60 seconds).
+.It Fl ggg
+Like
+.Ql Fl g
+but more often: every 20 seconds.
+.It Fl x
+Interpret
+.Ar command
+as an executable file name and arguments, instead of passing it through
+the shell.  This is more controllable but less versatile.
+.El
+.Pp
+The
+.Ar command
+consists of one or more of the given arguments.  If the
+.Ql Fl x
+option is not specified, then these arguments are combined together
+with spaces separating them, and passed to the shell (XXX bin sh)
+for execution.
+If the
+.Ql Fl x
+option is specified, the first argument of
+.Ar command
+is taken for the executable pathname to run, and the remaining arguments
+passed to it as arguments.
+.Pp
+The
+.Ql Fl x
+option is most likely to be of use when arguments include unusual characters
+(such as space or backslash) and you want to avoid having the shell
+interpret them (twice).  Usually, it won't matter.
+.Pp
+The output from running the command will appear on the terminal as usual,
+and also be collected in a new file.  The file will be created with a unique
+file name, which will be reported to you.  The directory the file
+goes into is determined as follows:
+.Pp
+.Bl -bullet
+.It
+The directory specified with the
+.Ql Fl d
+option, if it can be used, will be.
+.It
+Otherwise, if the
+.Ev LOGRUN_DIR
+environment variable is specified, and
+gives a directory that can be used, it will be.
+.It
+Otherwise, if ~/logs is a directory that can be used, it will be.
+.It
+If all else fails, they'll go in the current working directory
+(the directory you were in when you started
+.Nm ) .
+.El
+.Pp
+.Sh EXAMPLES
+To see
+.Nm
+in action, enter:
+.Pp
+.Dl logrun sleep 1
+.Pp
+If you are compiling software using
+.Xr make 1 ,
+enter:
+.Pp
+.Dl logrun make
+.Pp
+To prepare a directory which will receive all your
+.Nm
+output files, enter:
+.Pp
+.Dl mkdir ~/logs
+.Pp
+.Sh ENVIRONMENT
+.Bl -tag -width LOGRUN_DIRX
+.It Ev LOGRUN_DIR
+Directory to store output files, instead of ~/logs or the current
+directory; can in turn be overridden by the
+.Ql Fl d
+command line option.
+.El
+.Sh SEE ALSO
+.Xr sh 1 ,
+.Xr script 1 .
+.Sh BUGS
+If your shell command includes pieces that run in the background
+(with '&'),
+.Nm
+will (normally) wait for them to complete, but may not report the CPU time
+that they took.
+.Pp
+If the command exits with a signal, then you can only see the resulting
+signal with
+.Ql Fl x ,
+not otherwise

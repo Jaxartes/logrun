@@ -1,0 +1,26 @@
+# Makefile.canned
+# Use this (and logrun_config.h.canned) if you don't have "cmake" to
+# build and install "logrun."  But "cmake" is preferred. See also INSTALL.txt.
+
+# customization:
+#       BINDIR -- directory to install the "logrun" executable
+#       MANDIR -- directory to install the "logrun" manpage (documentation)
+#       CFLAGS -- additional arguments for the C compiler
+#       INSTALL -- path to the "install" command
+BINDIR=$(HOME)/bin
+MANDIR=$(HOME)/man
+CFLAGS=-g -Wall
+INSTALL=/usr/bin/install
+
+###
+
+logrun: logrun.o
+logrun.o: logrun.c
+clean:
+	-rm -f logrun.o logrun
+
+install:
+	$(INSTALL) -c logrun logrun $(BINDIR)/logrun
+
+install_man:
+	$(INSTALL) -c logrun logrun.1 $(MANDIR)/man1/logrun.1

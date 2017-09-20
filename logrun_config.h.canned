@@ -1,0 +1,53 @@
+/* logrun_config.h.canned
+ * Use this (and Makefile.canned) if you don't have "cmake" to build
+ * and install "logrun."  But "cmake" is preferred.  See also INSTALL.txt.
+ *
+ * This file contains various settings which are used by logrun.c to be
+ * compatible with various systems.  Edit it to suit the system you're
+ * compiling for.
+ */
+
+/* USE_GETOPT_PLUS --
+ * Short explanation: #define this on Linux; comment out the #define on most
+ * other systems that don't use GNU libc.
+ * 
+ * Long explanation: The traditional behavior of getopt() is to stop processing
+ * options at the first argument that's not an option.  GNU libc doesn't do
+ * that by default, which can cause a lot of trouble with 'logrun'.  GNU libc
+ * takes a '+' character in its third argument to restore the traditional
+ * behavior.  So, #define this variable if your getopt() is like GNU libc;
+ * don't #define it if not.
+ * 
+ * Hints: A useful test case is "logrun echo -n foo".  If you really want
+ * to find out about your system, compile and run "check_getopt_plus.c."
+ */
+#define USE_GETOPT_PLUS
+
+/* HAVE_GETRUSAGE -- Comment out this #define if your system doesn't
+ * have getrusage().  (Or if it doesn't work, or if it isn't in
+ * <sys/resource.h>.)  Unlikely; it appeared in 4.2BSD.
+ */
+#define HAVE_GETRUSAGE
+
+/* HAVE_FDOPEN -- Comment out this #define if your system doesn't have
+ * fdopen().  (Or if it doesn't work, or if it isn't in <stdio.h>.)
+ * Unlikely; it's in POSIX.1.
+ */
+#define HAVE_FDOPEN
+
+/* HAVE_FOPEN_X -- Uncomment this and change #undef to #define if your
+ * system's fopen() takes an "x" character as a modification to its
+ * 'mode' parameter to add O_EXCL.  This might be of use if you don't
+ * define HAVE_FDOPEN, but you probably do.
+ */
+/* #undef HAVE_FOPEN_X */
+
+/* LOGRUN_SRC_HASH & LOGRUN_SRC_HASH_ALGO are not being defined here.
+ * They enable the command's help text to show a hash of the source file,
+ * but it's inconvenient to compute them portably so they're left out of
+ * this canned Makefile.  If you were using "cmake" you'd get them.
+ */
+
+/* LOGRUN_VERSION -- this should match the one in CMakeLists.txt */
+#define LOGRUN_VERSION "pre-release 1.0"
+

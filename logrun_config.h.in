@@ -1,0 +1,13 @@
+/* logrun_config.h.in
+ * to be automatically converted by cmake to logrun_config.h
+ * Build time configuration settings for "logrun" mostly for compatibility.
+ * See CmakeLists.txt for more information.
+ */
+
+#define LOGRUN_VERSION "@LOGRUN_VERSION@"
+#cmakedefine HAVE_GETRUSAGE
+#cmakedefine HAVE_FOPEN_X
+#cmakedefine HAVE_FDOPEN
+#cmakedefine USE_GETOPT_PLUS
+#define LOGRUN_SRC_HASH "@LOGRUN_SRC_HASH@"
+#define LOGRUN_SRC_HASH_ALGO "@LOGRUN_SRC_HASH_ALGO@"
