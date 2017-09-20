@@ -20,7 +20,7 @@ clean:
 	-rm -f logrun.o logrun
 
 install:
-	$(INSTALL) -c logrun logrun $(BINDIR)/logrun
+	$(INSTALL) -c logrun $(BINDIR)/logrun
 
 install_man:
-	$(INSTALL) -c logrun logrun.1 $(MANDIR)/man1/logrun.1
+	$(INSTALL) -c logrun.1 $(MANDIR)/man1/logrun.1
