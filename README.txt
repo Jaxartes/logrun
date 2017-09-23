@@ -4,7 +4,7 @@ environments like Linux or the macOS command line.
 
 Sources of more information:
     INSTALL.txt describes installing logrun
-    LICENSE.txt describes the license for logrun (BSD-style)
+    LICENSE describes the license for logrun (BSD-style)
     the install(1) manpage, once installed, describes using logrun
 
 Example usage:
