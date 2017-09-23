@@ -100,6 +100,7 @@ set_tests_properties(
     PASS_REGULAR_EXPRESSION "COMMAND:.*n testing"
 )
 
+# does logrun report and pass exit status properly?
 add_test(
     NAME LogrunExit0
     COMMAND logrun -d . ${PROJECT_BINARY_DIR}/logrun -d . :
@@ -110,7 +111,6 @@ set_tests_properties(
     PASS_REGULAR_EXPRESSION "EXIT STATUS: 0"
 )
 
-# more complex tests on passing exit status
 add_test(
     NAME LogrunExit01
     COMMAND logrun -d . ${PROJECT_BINARY_DIR}/logrun -d . "${PROJECT_BINARY_DIR}/logrun -d . : ; ${PROJECT_BINARY_DIR}/logrun -d ."
@@ -130,3 +130,4 @@ set_tests_properties(
     LogrunExit10 PROPERTIES
     PASS_REGULAR_EXPRESSION "EXIT STATUS: [^0].*EXIT STATUS: 0.*EXIT STATUS: 0"
 )
+
