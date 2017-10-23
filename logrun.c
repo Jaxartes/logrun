@@ -66,6 +66,7 @@ static const char *opfx = "Out_"; /* prefix for output file names */
 static const char *bar = "===================================="
                          "====================================";
 static const char *shell = "/bin/sh"; /* shell to run commands */
+static const int wait_reap = 50000; /* microseconds to wait for children */
 
 /* help message */
 static void
@@ -333,10 +334,11 @@ main(int argc, char **argv)
     char *dir = NULL, *path = NULL;
     char buf[4096];
     FILE *fp, *o;
-    int xstatus = 0, xstatus2 = 0;
+    int xstatus = 0, xstatus1 = 0, xstatus2 = 0;
     pid_t child, reaped;
     int pout[2]; /* child's stdout in [1], parent's end in [0] */
     int perr[2]; /* child's stderr in [1], parent's end in [0] */
+    int waited;
     fd_set rfds;
     ustime_t tclocklast, tnow, dt;
     struct timeval tvto;
@@ -571,8 +573,28 @@ main(int argc, char **argv)
             /* The output from our child has been closed; see if it has exited.
              */
             xstatus = 0;
-            reaped = waitpid(child, &xstatus, WNOHANG);
-            if (reaped >= 0) break;
+            waited = 0;
+            for (;;) {
+                xstatus1 = 0;
+                reaped = waitpid(-1, &xstatus1, WNOHANG);
+                if (reaped == child) {
+                    xstatus = xstatus1;
+                }
+                if (reaped < 0) {
+                    if (waited) {
+                        /* don't wait any more */
+                        break;
+                    } else {
+                        /* see if waiting brings us more */
+                        usleep(wait_reap);
+                        waited = 1;
+                    }
+                } else {
+                    /* we got some, see if there are any more */
+                    waited = 0;
+                }
+            }
+            break;
         }
     }
 
