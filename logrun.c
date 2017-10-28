@@ -96,7 +96,10 @@ usage(void)
 
 /* utility functions */
 
-/* dirok(): Check to see that a given directory exists */
+/* dirok(): Check to see that a given directory exists.  Returns 1 if it
+ * does, 0 if it doesn't or can't be used.  If the directory
+ * name is NULL or empty string, returns 0.
+ */
 static int
 dirok(const char *path)
 {
@@ -135,7 +138,7 @@ mkfile(const char *dir, char **path, FILE **fp)
     DIR *d;
     struct dirent *e;
     char pfx[32];
-    int pfxlen;
+    int pfxlen, rv;
     time_t t;
     struct tm *tm;
 
@@ -149,6 +152,11 @@ mkfile(const char *dir, char **path, FILE **fp)
     pfxlen = snprintf(pfx, sizeof pfx, "%s%02u%02u%02u_",
                       opfx, (unsigned)(tm->tm_year % 100),
                       (unsigned)(tm->tm_mon + 1), (unsigned)(tm->tm_mday));
+    if (pfxlen < 0 || pfxlen >= sizeof(pfx)) {
+        /* shouldn't happen */
+        fprintf(stderr, "unexpected error computing file name\n");
+        return(-1);
+    }
 
     /* read entries in the directory, to find the right index number */
     d = opendir(dir);
@@ -167,7 +175,12 @@ mkfile(const char *dir, char **path, FILE **fp)
     closedir(d);
 
     /* build a filename out of it */
-    snprintf(buf, sizeof buf, "%s/%s%02lu", dir, pfx, n);
+    rv = snprintf(buf, sizeof buf, "%s/%s%02lu", dir, pfx, n);
+    if (rv < 0 || rv >= sizeof(buf)) {
+        /* should be very rare */
+        fprintf(stderr, "unexpected error computing file name\n");
+        return(-1);
+    }
     *path = strdup(buf);
 
     /* Open & create a file of that name.  There shouldn't ever already be one.
@@ -342,6 +355,8 @@ main(int argc, char **argv)
     fd_set rfds;
     ustime_t tclocklast, tnow, dt;
     struct timeval tvto;
+
+    tvto.tv_sec = tvto.tv_usec = 0;
 
     /* parse command line options */
     if (argc > 0) progname = strdup(basename(argv[0]));
@@ -520,7 +535,7 @@ main(int argc, char **argv)
                 /* These are temporary problems not real errors. */
             } else {
                 /* This really shouldn't happen */
-                demit(stderr, fp, "select() failed: %s\n", strerror(errno));
+                demit(stderr, fp, "select() failed: %s\r\n", strerror(errno));
             }
             /* Put in a little delay and try again */
             usleep(250000); /* 1/4 second */
@@ -546,10 +561,10 @@ main(int argc, char **argv)
                     continue;
                 } else {
                     /* this shouldn't have happened */
-                    usleep(250000); /* 1/4 second */
-                    i = snprintf(buf, sizeof buf, "read failed: %s\n",
+                    i = snprintf(buf, sizeof buf, "read failed: %s\r\n",
                                  strerror(errno));
                     o = stderr;
+                    usleep(250000); /* 1/4 second */
                 }
             }
             if (i == 0) {
