@@ -287,7 +287,7 @@ static void time_emit(FILE *f1, FILE *f2, int first, int norusage, char *eol)
             memset(&ru, 0, sizeof ru);
             if (getrusage(RUSAGE_CHILDREN, &ru) < 0) {
                 /* really shouldn't happen */
-                demit(f1, f2, "getrusage failed: %s", strerror(errno));
+                demit(f1, f2, "getrusage failed: %s%s", strerror(errno), eol);
                 return;
             }
             demit(f1, f2,
@@ -425,15 +425,17 @@ main(int argc, char **argv)
 
     /* open pipes for the command's stdout and stderr */
     pout[0] = pout[1] = perr[0] = perr[1] = -1;
-    if ((i = pipe(pout) < 0) || pout[0] < 0 || pout[1] < 0) {
+    i = pipe(pout);
+    if (i < 0 || pout[0] < 0 || pout[1] < 0) {
         demit(stderr, fp, "ERROR: stdout pipe creation failed: %s\n",
-              (i >= 0) ? strerror(errno) : "unknown reason");
+              (i < 0) ? strerror(errno) : "unknown reason");
         fclose(fp);
         exit(1);
     }
-    if ((i = pipe(perr) < 0) || perr[0] < 0 || perr[1] < 0) {
+    i = pipe(perr);
+    if (i < 0 || perr[0] < 0 || perr[1] < 0) {
         demit(stderr, fp, "ERROR: stderr pipe creation failed: %s\n",
-              (i >= 0) ? strerror(errno) : "unknown reason");
+              (i < 0) ? strerror(errno) : "unknown reason");
         fclose(fp);
         exit(1);
     }
