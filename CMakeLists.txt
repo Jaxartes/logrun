@@ -8,7 +8,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 ## version identification
 
-set(LOGRUN_VERSION "1.0")
+set(LOGRUN_VERSION "1.1")
 set(LOGRUN_SRC_HASH_ALGO "SHA1")
 file(${LOGRUN_SRC_HASH_ALGO} "${PROJECT_SOURCE_DIR}/logrun.c" LOGRUN_SRC_HASH)
 # Could use a stronger hash than SHA1, but since it's only used to help
