@@ -288,7 +288,7 @@ static void time_emit(FILE *f1, FILE *f2, int first, int norusage, char *eol)
             if (getrusage(RUSAGE_CHILDREN, &ru) < 0) {
                 /* really shouldn't happen */
                 demit(f1, f2, "getrusage failed: %s", strerror(errno));
-                exit(1);
+                return;
             }
             demit(f1, f2,
                   "USER CPU TIME: %u.%03u sec%s"
@@ -343,7 +343,7 @@ main(int argc, char **argv)
 {
     int execit = 0; /* -x option to bypass shell */
     int doclock = 0; /* -k for time updates every 5 minutes */
-    int oc, i;
+    int oc, i, rv;
     char *dir = NULL, *path = NULL;
     char buf[4096];
     FILE *fp, *o;
@@ -425,13 +425,13 @@ main(int argc, char **argv)
 
     /* open pipes for the command's stdout and stderr */
     pout[0] = pout[1] = perr[0] = perr[1] = -1;
-    if ((i = pipe(pout) < 0) && (pout[0] < 0 || pout[1] < 0)) {
+    if ((i = pipe(pout) < 0) || pout[0] < 0 || pout[1] < 0) {
         demit(stderr, fp, "ERROR: stdout pipe creation failed: %s\n",
               (i >= 0) ? strerror(errno) : "unknown reason");
         fclose(fp);
         exit(1);
     }
-    if ((i = pipe(perr) < 0) && (perr[0] < 0 || perr[1] < 0)) {
+    if ((i = pipe(perr) < 0) || perr[0] < 0 || perr[1] < 0) {
         demit(stderr, fp, "ERROR: stderr pipe creation failed: %s\n",
               (i >= 0) ? strerror(errno) : "unknown reason");
         fclose(fp);
@@ -470,15 +470,17 @@ main(int argc, char **argv)
              * in $PATH
              */
             execvp(argv[optind], argv + optind);
+            rv = (errno == ENOENT) ? 127 : 126;
             fprintf(stderr, "execvp(%s) failed: %s\n",
                     argv[optind], strerror(errno));
         } else {
             /* build a shell command line string and run the shell on it */
             execl(shell, shell, "-c", buf, NULL);
+            rv = (errno != ENOENT) ? 127 : 126;
             fprintf(stderr, "execl(%s -c '%s') failed: %s\n",
                     shell, buf, strerror(errno));
         }
-        _exit(1);
+        _exit(rv);
     } else {
         /* parent process */
         close(pout[1]); /* child side of stdout pipe */
@@ -627,7 +629,7 @@ main(int argc, char **argv)
         demit(stderr, fp, "EXIT SIGNAL: %s%s\n",
               strsignal(sig),
               WCOREDUMP(xstatus) ? " (core dumped)" : "");
-        xstatus2 = 1;
+        xstatus2 = 128 + sig;
     } else {
         /* shouldn't happen */
         demit(stderr, fp, "EXIT STATUS UNKNOWN?\n");
